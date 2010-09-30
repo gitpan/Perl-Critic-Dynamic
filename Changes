@@ -1,9 +1,36 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.04/Changes $
-#     $Date: 2007-08-07 13:11:35 -0700 (Tue, 07 Aug 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.05/Changes $
+#     $Date: 2010-09-30 10:38:54 -0700 (Thu, 30 Sep 2010) $
 #   $Author: thaljef $
-# $Revision: 1821 $
+# $Revision: 3944 $
 ########################################################################
+
+[0.05] Released on 2010-09-30
+
+    Important:
+    * Starting with this release, Perl::Critic::DynamicPolicy and any 
+      Policy that inherits from it will be marked as "unsfafe".  At the
+      same time, this release requires Perl::Critic 1.108 or newer, which
+      will not load unsafe Policies by default.
+
+      So if you've been using (or developing) dynamic Policies, you
+      must now set (or tell your users to set) the -allow-unsafe
+      switch in either the Perl::Critic constructor or at the perlcritic
+      command line.
+
+    Bug Fixes:
+    * Fixed build failures due to undeclared dependency on Readonly.
+      Apparently, this was caused by a stray comma in the requirements
+      declaration
+
+    New Features:
+    * If a Dynamic policy throws an exception, the contents of EVAL_ERROR
+      will be dumped to STDOUT.  This was suggested by John LoVerso so
+      to make it possible to diagnose why the policy blew up.
+
+    Miscellanea:
+    * Organized author-only tests into the xt/ directory.
+    * Started using the Test::Perl::Critic::Policy framework for unit tests.
 
 [0.04] Released on 2007-08-06
 

@@ -1,18 +1,25 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.04/t/99_pod_coverage.t $
-#    $Date: 2007-08-07 13:11:35 -0700 (Tue, 07 Aug 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.05/xt/author/99_pod_coverage.t $
+#    $Date: 2010-09-24 11:59:12 -0700 (Fri, 24 Sep 2010) $
 #   $Author: thaljef $
-# $Revision: 1821 $
+# $Revision: 3933 $
 ##############################################################################
 
 use strict;
 use warnings;
 use Test::More;
+use English qw<-no_match_vars>;
 
-eval 'use Test::Pod::Coverage 1.04'; ## no critic
-plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $@;
+#-----------------------------------------------------------------------------
+
+our $VERSION = '0.05';
+
+#-----------------------------------------------------------------------------
+
+eval 'use Test::Pod::Coverage 1.04';
+plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $EVAL_ERROR;
 
 {
     # HACK: Perl::Critic::Violation uses Pod::Parser to extract the
@@ -30,14 +37,14 @@ plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $@;
     # parsing.  I'll look for a better solution (or file a bug report)
     # when / if I have better understanding of the problem.
 
-    no warnings;
+    no warnings qw(redefine once);
     require Perl::Critic::Violation;
     *Perl::Critic::Violation::import = sub { 1 };
 }
 
 my @trusted_methods  = get_trusted_methods();
 my $method_string = join ' | ', @trusted_methods;
-my $trusted_rx = qr{ \A (?: $method_string ) \z }x;
+my $trusted_rx = qr{ \A (?: $method_string ) \z }xms;
 all_pod_coverage_ok( {trustme => [$trusted_rx]} );
 
 #-----------------------------------------------------------------------------

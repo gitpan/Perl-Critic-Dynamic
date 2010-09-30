@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.04/lib/Perl/Critic/Dynamic.pm $
-#     $Date: 2007-08-07 13:11:35 -0700 (Tue, 07 Aug 2007) $
-#   $Author: thaljef $
-# $Revision: 1821 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.05/lib/Perl/Critic/Dynamic.pm $
+#     $Date: 2009-04-25 13:24:01 -0700 (Sat, 25 Apr 2009) $
+#   $Author: shawnmoore $
+# $Revision: 3293 $
 ##############################################################################
 
 package Perl::Critic::Dynamic;
@@ -12,7 +12,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 #-----------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ compiled.
 This distribution includes L<Perl::Critic::DynamicPolicy>, which can
 be used as a base class for Policies that wish to compile the code
 they analyze.  The distribution also contains
-L<Perl::Critic::Policy::Dynmaic::ValidateAgainstSymbolTable> which
+L<Perl::Critic::Policy::Dynamic::ValidateAgainstSymbolTable> which
 demonstrates the use of L<Perl::Critic::DynamicPolicy>.
 
 =head1 ACKNOWLEDGMENTS

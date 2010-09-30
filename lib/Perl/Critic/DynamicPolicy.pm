@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.04/lib/Perl/Critic/DynamicPolicy.pm $
-#     $Date: 2007-08-07 13:11:35 -0700 (Tue, 07 Aug 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.05/lib/Perl/Critic/DynamicPolicy.pm $
+#     $Date: 2010-09-24 12:32:37 -0700 (Fri, 24 Sep 2010) $
 #   $Author: thaljef $
-# $Revision: 1821 $
+# $Revision: 3935 $
 ##############################################################################
 
 package Perl::Critic::DynamicPolicy;
@@ -17,7 +17,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 0.03;
+our $VERSION = 0.05;
 
 #-----------------------------------------------------------------------------
 # This function creates a pipe and forks.  The child will compile the code and
@@ -37,7 +37,7 @@ sub violates {
     if (!$pid) {
 
         # child process
-        eval {
+        my $eval = eval {
 
             close $parent_reader or
               confess "Failed to close unused pipe end: $OS_ERROR";
@@ -50,15 +50,17 @@ sub violates {
 
             close $child_writer
               or confess "Failed to close pipe writer: $OS_ERROR";
+
+            1;
         };
 
         # All exceptions from the child process are caught.  We communicate
         # failure back to the parent via the exit $status of the child.
-        # However, the parent doesn't really know why the child failed.  This
-        # also has the unfortunate side-effect of hiding the text of
-        # $EVAL_ERROR.  I'm not sure how to improve this.
+        # The contents of $EVAL_ERROR will be written to STDERR, but at
+        # the moment, the parent just ignores it.
 
-        my $status = $EVAL_ERROR ? 1 : 0;
+        my $status = (!$eval || $EVAL_ERROR) ? 1 : 0;
+        warn "$EVAL_ERROR\n" if $status;
         exit $status;
     }
 
@@ -78,6 +80,10 @@ sub violates {
     my @violations = @{Storable::thaw($serialized)};
     return @violations;
 }
+
+#-----------------------------------------------------------------------------
+
+sub is_safe { return 0; }
 
 #-----------------------------------------------------------------------------
 
@@ -101,12 +107,18 @@ L<Perl::Critic::DynamicPolicy> is intended to be used as a base class for
 L<Perl::Critic::Policy> modules that wish to compile and/or execute the code
 that is being analyzed.
 
-Policies derived from L<Perl::Critic::DynamicPolicy> will C<fork> the
+Policies that inherit from L<Perl::Critic::DynamicPolicy> will C<fork> the
 process each time the C<violates> method is called.  The child process is then
 free to compile the code and do other mischievous things without corrupting
 the symbol table of the parent process.  When the analysis is complete, the
 child serializes any L<Perl::Critic::Violation> objects that were created and
 sends them back to the parent across a pipe.
+
+Any Policy that inherits from L<Perl::Critic::DynamicPolicy> will also be
+marked as "unsafe" and is usually ignored by both L<Perl::Critic> and
+L<perlcritic>.  To use a Policy that inherits from
+L<Perl::Critic::DynamicPolicy>, you must set the C<-allow-unsafe> switch in
+the L<Perl::Critic> constructor or on the L<perlcritic> command line.
 
 In every other way, a L<Perl::Critic::DynamicPolicy> behaves just like an
 ordinary L<Perl::Critic::Policy>.  For Policy authors, the main difference is
@@ -121,7 +133,7 @@ uniquely relevant to L<Perl::Critic::DynamicPolicy> subclasses.  See
 L<Perl::Critic::Policy> and L<Perl::Critic::DEVELOPER> for documentation about
 the other methods shared by all Policies.
 
-=over 8
+=over
 
 =item C< violates( $doc, $elem ) >
 
@@ -142,6 +154,12 @@ interfering with the parent process.
 C<violates_dynamic> is an abstract method and it will abort if you attempt to
 invoke it directly.  It is the heart of your L<Perl::Critic::DynamicPolicy>
 modules, and your subclass must override this method.
+
+=item C< is_safe() >
+
+Returns false.  Any Policy derived from this module is presumed to be unsafe.
+L<Perl::Critic> and L<perlcritic> users can only load Policies derived from
+this module if they use the C<-allow-unsafe> switch.
 
 =back
 

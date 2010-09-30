@@ -1,13 +1,16 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.04/Makefile.PL $
-#     $Date: 2007-08-07 13:11:35 -0700 (Tue, 07 Aug 2007) $
-#   $Author: thaljef $
-# $Revision: 1821 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.05/Makefile.PL $
+#     $Date: 2008-06-17 12:27:21 -0700 (Tue, 17 Jun 2008) $
+#   $Author: clonezone $
+# $Revision: 2450 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
+use 5.006001;
+
 use strict;
 use warnings;
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile(

@@ -297,7 +297,7 @@ use FooBar;
 #-----------------------------------------------------------------------------
 
 ## name at_inc configuration
-## parms { at_inc => 't/tlib' }
+## parms { at_inc => 'tlib' }
 ## failures 0
 ## cut
 
@@ -306,7 +306,7 @@ use FooBar;
 #-----------------------------------------------------------------------------
 
 ## name at_inc_prefix configuration
-## parms { at_inc_prefix => 't/tlib' }
+## parms { at_inc_prefix => 'tlib' }
 ## failures 0
 ## cut
 
@@ -315,7 +315,7 @@ use FooBar;
 #-----------------------------------------------------------------------------
 
 ## name Inner packages
-## parms { at_inc_prefix => 't/tlib', max_recursion => 1 }
+## parms { at_inc_prefix => 'tlib', max_recursion => 1 }
 ## failures 0
 ## cut
 
@@ -327,7 +327,7 @@ InnerFooBar::inner_subroutine();
 #-----------------------------------------------------------------------------
 
 ## name at_inc_suffix configuration
-## parms { at_inc_suffix => 't/tlib' }
+## parms { at_inc_suffix => 'tlib' }
 ## failures 0
 ## cut
 

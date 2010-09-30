@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.04/lib/Perl/Critic/Policy/Dynamic/ValidateAgainstSymbolTable.pm $
-#     $Date: 2007-08-07 13:11:35 -0700 (Tue, 07 Aug 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-Dynamic-0.05/lib/Perl/Critic/Policy/Dynamic/ValidateAgainstSymbolTable.pm $
+#     $Date: 2010-09-24 12:32:37 -0700 (Fri, 24 Sep 2010) $
 #   $Author: thaljef $
-# $Revision: 1821 $
+# $Revision: 3935 $
 ##############################################################################
 
 package Perl::Critic::Policy::Dynamic::ValidateAgainstSymbolTable;
@@ -27,7 +27,7 @@ use Perl::Critic::Utils qw(
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 #-----------------------------------------------------------------------------
 
@@ -170,9 +170,11 @@ sub _check_symbol {
     # Normalize and parse symbol
     # TODO: Document the regexes used here
     my $canon = $symbol->canonical();
-    $canon =~ m{ \A [\$\@\%\&\*] (.*?) (?: ::)? ([^:]*) \z }mx
+
+    $canon =~ m{ \A [\$@%&*] (.*?) (?: ::)? ([^:]*) \z }xms
       or confess "Unexpected symbol format: $symbol";
-    my ($pkg, $sym_name) = ($1, $2);  ## no critic ProhibitCaptureWithoutTest
+
+    my ($pkg, $sym_name) = ($1, $2);
     my $sigil = $symbol->symbol_type();
 
 
@@ -216,9 +218,9 @@ sub _check_bareword {
     # Normalize and parse bareword
     # TODO: Document the regexes used here
     my $canon = _canonicalize_bareword($bareword->content(), $current_ns);
-    $canon =~ m{ (.+) :: ([^:]+) \z }mx
+    $canon =~ m{ (.+) :: ([^:]+) \z }xms
       or confess "Unexpected bareword format: $canon";
-    my ($sigil, $pkg, $sub_name) = ($AMPERSAND, $1, $2); ## no critic ProhibitCaptureWithoutTest
+    my ($sigil, $pkg, $sub_name) = ($AMPERSAND, $1, $2);
 
 
     # Ignore stuff from global packages
@@ -262,7 +264,7 @@ require $module;
 END_CODE
 
     local @INC = @{ $self->{_inc} };
-    eval $code;  ## no critic (StringyEval)
+    eval $code;  ## no critic (Eval)
 
      if ($EVAL_ERROR) {
          my $policy = policy_short_name(__PACKAGE__);
@@ -302,7 +304,7 @@ sub _compile_document {
     # that "die" has been overridden, so I call CORE::die directly.  Perhaps
     # there is a more elegant way to do this, but I haven't figured it out.
 
-    my $suicide_note = '__execution_aborted__';  ## no critic (Metachars)
+    my $suicide_note = '__execution_aborted__';
     my $code_header = <<"END_HEADER";
 
 package $FAKE_NAMESPACE;
@@ -323,6 +325,7 @@ END_HEADER
         open my $fh, '<', $filename
           or confess qq{Can't open "$filename" for reading: $OS_ERROR};
         $source_code = do {local $INPUT_RECORD_SEPARATOR = undef; <$fh>; };
+        close $fh or confess qq{Can't close "$filename": $OS_ERROR};
     }
     else {
         $source_code = $doc->content();
@@ -335,7 +338,7 @@ END_HEADER
     # all goes well, it to die with a very particular error message.
 
     local @INC = @{ $self->{_inc} };
-    eval $source_code;  ## no critic (StringyEval)
+    eval $source_code;  ## no critic (Eval)
     return 1 if $EVAL_ERROR eq "$suicide_note\n";
 
 
@@ -374,7 +377,7 @@ sub _find_included_modules {
     return if not $includes;
 
 
-    my @include_statements = grep {$_->type() =~ m/(?:use|no)/mx} @{$includes};
+    my @include_statements = grep {$_->type() =~ m/(?:use|no)/xms} @{$includes};
 
     # I'm assuming that the name of the module, is the namespace where its
     # symbols are going to be declared.  But that isn't always true.  Might be
@@ -413,8 +416,8 @@ sub _hashify_symbol_table {
 sub _canonicalize_bareword {
 
     my ($bareword_as_string, $current_ns) = @_;
-    return $bareword_as_string if $bareword_as_string =~ m/\A .+ ::/mx;
-    return 'main' . $bareword_as_string if $bareword_as_string =~ m/\A ::/mx;
+    return $bareword_as_string if $bareword_as_string =~ m/\A .+ ::/xms;
+    return 'main' . $bareword_as_string if $bareword_as_string =~ m/\A ::/xms;
     return $current_ns. q{::} . $bareword_as_string;
 }
 
@@ -445,6 +448,12 @@ subroutines mentioned in your code to those found in the symbol table.
 Therefore you should B<not> use this Policy on any code that you do not trust,
 or may have undesirable side-effects at compile-time (such as connecting to
 the network or mutating files).
+
+For these reasons, this Policy (and any other Policy that inherits from
+L<Perl::Critic::DynamicPolicy>) is marked as "unsafe" and usually ignored by
+both L<Perl::Critic> and L<perlcritic>.  So to use this Policy, you must set
+the C<-allow-unsafe> switch in the L<Perl::Critic> contstructor or on the
+L<perlcritic> command line.
 
 For this Policy to work, all the modules included in your code must be
 installed locally, and must compile without error.  See L<"CONFIGURATION"> for
@@ -479,7 +488,7 @@ consume a lot of resources.
 This Policy supports the following configuration parameters.  See below for
 example of how to set these parameters in you f<.perlcriticrc> file.
 
-=over 8
+=over
 
 =item C<at_inc_prefix>
 
